@@ -18,3 +18,5 @@ for i in range(N+1):
     ans += divisor(i, N)
 
 print(ans)
+
+# ここまではわかる
