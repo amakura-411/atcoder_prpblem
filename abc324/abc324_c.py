@@ -8,7 +8,7 @@ def sameT(s, t):
     new_s = ""
 
     if s_length == t_length:
-        # T のある 1 文字を別の英小文字に変更して得られる文字列
+        # T のある 1 文字を別の英小文字に変更して得られる文字列 
         for i in range(s_length):
             if s[i] != t[i]:
                 new_s = s[:i] + t[i] + s[i+1:]
