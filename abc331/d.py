@@ -1,53 +1,47 @@
+# N=マスの数, Q=クエリの数
 N, Q = map(int, input().split())
+
 mass = [input() for _ in range(N)]
 
-#累積和
-num = [[0] * (N+1) for _ in range(N+1)]
+
+# print(mass)
+# 累積和
+value_sum = [[0] * (N+1) for _ in range(N+1)]
 for i in range(1, N+1):
     for j in range(1, N+1):
-        num[i][j] += 1 if mass[i-1][j-1] == "B" else 0
-        num[i][j] += num[i-1][j]
-        num[i][j] += num[i][j-1]
-        num[i][j] -= num[i-1][j-1]
+        value_sum[i][j] = value_sum[i-1][j] + value_sum[i][j-1] - value_sum[i-1][j-1]
+        value_sum[i][j] = value_sum[i][j] + 1 if mass[i-1][j-1] == "B" else value_sum[i][j]
 
-def counterBlack(H, W):
-    if H <=N and W <= N:
-        # 範囲内の状態ならそのまま返す
-        return num[H][W]
-    # HをNで割った商と余り
-    hq, hr = divmod(H, N)
-    # WをNで割った商と余り
-    wq, wr = divmod(W, N)
+
+# 3. 領域内の'B'の数を求める関数
+def black_sum(H, W):
+    if H <= N and W <= N:
+        # 範囲内ならそのまま返す
+        return value_sum[H][W]
+    
+    # 縦横の商と余りを求める
+    Hq, Hr = divmod(H, N)
+    Wq, Wr = divmod(W, N)
+    # retは戻り値を格納する変数
     ret = 0
-    # massの中範囲の黒の数 * Nで割った商
-    ret += counterBlack(N, N) * hq * wq
-    # massの中範囲の黒の数 * 余り
-    ret += counterBlack(hr, N) * wq
-    # massの中範囲の黒の数 * 余り
-    ret += counterBlack(N, wr) * hq
-    # massの中範囲の黒の数
-    ret += counterBlack(hr, wr)
+    # (0, 0) -> (N, N)の領域内の'B'の数
+    ret +=black_sum(N, N) * (Hq * Wq)
+    # (0, 0) -> (N, Wr)の領域内の'B'の数
+    ret +=black_sum(N, Wr) * Hq
+    # (0, 0) -> (Hr, N)の領域内の'B'の数
+    ret +=black_sum(Hr, N) * Wq
+    # (0, 0) -> (Hr, Wr)の領域内の'B'の数
+    ret +=black_sum(Hr, Wr)
     return ret
 
-# 与えられた4つの座標に対応する領域内に存在する'B'の数を計算します
-def checkerBlock(A, B, C, D):
-# f(A,B,C,D)
-# =((d)に含まれる黒マスの個数)
-# =((a),(b),(c),(d)に含まれる黒マスの個数)
-# −((a),(b)に含まれる黒マスの個数)
-# −((a),(c)に含まれる黒マスの個数)
-# +((a)に含まれる黒マスの個数)
-# =f(0,0,C,D)−f(0,0,C,B)−f(0,0,A,D)+f(0,0,A,B)
 
-    return counterBlack(C, D) - counterBlack(A, D) - counterBlack(C, B) + counterBlack(A, B)
+def CountBlack(a, b, c, d):
+    # bs(4,5) - bs(0,5) - bs(4,2) + bs(0,2)
+    # = bs(c+1, d+1) - bs(a, d+1) - bs(c+1, b) + bs(a, b)
+    # = bs(c, d) - bs(a, d) - bs(c, b) + bs(a, b
+    return black_sum(c, d) - black_sum(a, d) - black_sum(c, b) + black_sum(a, b)    
 
-    
 
 for _ in range(Q):
     a, b, c, d = map(int, input().split())
-    print(checkerBlock(a, b, c + 1, d + 1))
-
-
-
-
-
+    print(CountBlack(a, b, c+1, d+1))
